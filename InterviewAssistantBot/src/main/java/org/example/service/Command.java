@@ -1,4 +1,22 @@
 package org.example.service;
 
-public class Command {
+import lombok.RequiredArgsConstructor;
+import org.example.client.OpenAiClient;
+import org.example.repository.InterviewRepository;
+import org.example.repository.TopicRepository;
+import org.example.telegram.Bot;
+import org.jvnet.hk2.annotations.Service;
+import org.telegram.telegrambots.meta.api.objects.Update;
+
+@Service
+@RequiredArgsConstructor
+public abstract class Command {
+
+    private TopicRepository topicRepository;
+    private OpenAiClient openAiClient;
+    InterviewRepository interviewRepository;
+
+    public abstract boolean isApplicable(Update update);
+
+    public abstract String process(Update update, Bot bot);
 }
