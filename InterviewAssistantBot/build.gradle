@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.0'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '18'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.telegram:telegrambots:6.9.7.1'
+    implementation 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//tasks.register('run') {
+//    dependsOn tasks.build
+//    doLast {
+//        javaexec {
+//            main = 'org.example.InterviewAssistantBotApp' // Замените на полное имя вашего главного класса
+//            classpath = sourceSets.main.runtimeClasspath
+//            jvmArgs = ['-Dspring.profiles.active=dev'] // Опциональный параметр для активации профиля dev
+//        }
+//    }
+//}

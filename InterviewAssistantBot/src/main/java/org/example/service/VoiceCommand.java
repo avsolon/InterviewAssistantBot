@@ -97,8 +97,10 @@ public class VoiceCommand extends Command {
 
     public VoiceCommand(OpenAiClient openAiClient,
                         InterviewRepository interviewRepository,
-                        TopicRepository topicRepository) {
+                        TopicRepository topicRepository,
+                        @Value("${interview.max-questions}") int maxQuestions) {
         super(topicRepository, openAiClient, interviewRepository);
+        this.maxQuestions = maxQuestions;
     }
 
     @Override

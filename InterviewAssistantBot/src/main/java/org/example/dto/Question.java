@@ -1,6 +1,6 @@
 package org.example.dto;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
 public class Question {

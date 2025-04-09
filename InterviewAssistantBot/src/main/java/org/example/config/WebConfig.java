@@ -8,10 +8,12 @@ import org.springframework.web.client.RestTemplate;
 public class WebConfig {
 
     @Bean
-    public RestTemplate restTemplate(){return new RestTemplate();}
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
     @Bean
-    public ObjectMapper objectMapper(){
+    public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper;

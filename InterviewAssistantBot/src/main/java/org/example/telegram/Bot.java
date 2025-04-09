@@ -12,19 +12,19 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
 
 @Component
-public class  Bot extends TelegramLongPollingBot {
+public class Bot extends TelegramLongPollingBot {
 
     private final List<Command> commands;
 
-    public Bot(@Value("${bot.token}") String token, List<Command> commands) {
+    public Bot(@Value("${bot.token}") String token,
+               List<Command> commands) {
         super(token);
         this.commands = commands;
     }
 
-
     @Override
     public void onUpdateReceived(Update update) {
-        if(update.hasMessage()){
+        if (update.hasMessage()) {
             commands.stream()
                     .filter(command -> command.isApplicable(update))
                     .findFirst()
@@ -34,9 +34,9 @@ public class  Bot extends TelegramLongPollingBot {
                         SendMessage response = new SendMessage();
                         response.setChatId(message.getChatId().toString());
                         response.setText(answer);
-                        try{
+                        try {
                             execute(response);
-                        } catch (TelegramApiException e){
+                        } catch (TelegramApiException e) {
                             throw new IllegalStateException("...", e);
                         }
                     });
@@ -45,6 +45,6 @@ public class  Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "name_interview_bot";
+        return "avsMyFirstBot";
     }
 }

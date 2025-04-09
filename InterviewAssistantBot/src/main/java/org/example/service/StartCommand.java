@@ -4,16 +4,22 @@ import org.example.client.OpenAiClient;
 import org.example.repository.InterviewRepository;
 import org.example.repository.TopicRepository;
 import org.example.telegram.Bot;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-@Service
+@Component
 public class StartCommand extends Command {
 
-    private TopicRepository topicRepository;
-    private OpenAiClient openAiClient;
-    private InterviewRepository interviewRepository;
+//    @Autowired
+//    private TopicRepository topicRepository;
+//
+//    @Autowired
+//    private OpenAiClient openAiClient;
+//
+//    @Autowired
+//    private InterviewRepository interviewRepository;
 
     private static final String INTERVIEW_PROMPT = """
                         Весело и тепло поприветствуй кандидата на собеседовании, а также расскажи ему о правилах интервью:
@@ -56,16 +62,16 @@ public class StartCommand extends Command {
     public StartCommand(TopicRepository topicRepository,
                         OpenAiClient openAiClient,
                         InterviewRepository interviewRepository) {
-        this.topicRepository = topicRepository;
-        this.openAiClient = openAiClient;
-        this.interviewRepository = interviewRepository;
+        super(topicRepository, openAiClient, interviewRepository);
     }
 
+    @Override
     public boolean isApplicable(Update update) {
         Message message = update.getMessage();
         return message.hasText() && "/start".equals(message.getText());
     }
 
+    @Override
     public String process(Update update, Bot bot) {
         String topic = topicRepository.getRandomTopic();
         String prompt = String.format(INTERVIEW_PROMPT, topic);

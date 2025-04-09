@@ -1,4 +1,3 @@
 package org.example.dto;
 
-public class Transcription {
-}
+public record Transcription(String text) {}

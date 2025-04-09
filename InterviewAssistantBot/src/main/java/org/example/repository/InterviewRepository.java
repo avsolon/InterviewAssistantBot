@@ -3,10 +3,7 @@ package org.example.repository;
 import org.example.dto.Question;
 import org.springframework.stereotype.Repository;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class InterviewRepository {
