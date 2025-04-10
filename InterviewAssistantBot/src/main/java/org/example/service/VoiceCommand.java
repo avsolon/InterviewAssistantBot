@@ -110,13 +110,19 @@ public class VoiceCommand extends Command {
 
     @Override
     public String process(Update update, Bot bot) {
-        String answer = transcribeVoiceAnswer(update, bot);
         String userName = update.getMessage().getFrom().getUserName();
-        interviewRepository.addAnswer(userName, answer);
-        if (interviewRepository.getUserQuestions(userName) == maxQuestions) {
-            return provideFeedback(userName);
-        } else {
-            return askNextQuestion(userName);
+        String answer = transcribeVoiceAnswer(update, bot);
+
+        try {
+            interviewRepository.addAnswer(userName, answer);
+
+            if (interviewRepository.getUserQuestionsCount(userName) >= maxQuestions) {
+                return provideFeedback(userName);
+            } else {
+                return askNextQuestion(userName);
+            }
+        } catch (IllegalStateException e) {
+            return "Пожалуйста, начните интервью командой /start";
         }
     }
 
@@ -157,13 +163,80 @@ public class VoiceCommand extends Command {
     }
 
     private String provideFeedback(String userName) {
-        StringBuilder feedbackPrompt = new StringBuilder();
-        feedbackPrompt.append(FEEDBACK_PROMPT);
+        StringBuilder feedbackPrompt = new StringBuilder(FEEDBACK_PROMPT);
         Deque<Question> questions = interviewRepository.finishInterview(userName);
-        questions.forEach(question -> feedbackPrompt.append("Исходный вопрос: ")
-                .append(question.getQuestion()).append("\n")
-                .append("Ответ кандидата: ")
-                .append(question.getAnswer()).append("\n"));
+
+        questions.forEach(question ->
+                feedbackPrompt.append("\n\nВопрос: ")
+                        .append(question.getQuestion())
+                        .append("\nОтвет: ")
+                        .append(question.getAnswer()));
+
         return openAiClient.promptModel(feedbackPrompt.toString());
     }
+
+
+
+
+
 }
+
+
+//    @Override
+//    public String process(Update update, Bot bot) {
+//        String answer = transcribeVoiceAnswer(update, bot);
+//        String userName = update.getMessage().getFrom().getUserName();
+//        interviewRepository.addAnswer(userName, answer);
+//        if (interviewRepository.getUserQuestions(userName) == maxQuestions) {
+//            return provideFeedback(userName);
+//        } else {
+//            return askNextQuestion(userName);
+//        }
+//    }
+//
+//    private String transcribeVoiceAnswer(Update update, Bot bot) {
+//        Voice voice = update.getMessage().getVoice();
+//        String fileId = voice.getFileId();
+//        java.io.File audio;
+//        try {
+//            GetFile getFileRequest = new GetFile();
+//            getFileRequest.setFileId(fileId);
+//            File file = bot.execute(getFileRequest);
+//
+//            audio = bot.downloadFile(file.getFilePath());
+//        } catch (TelegramApiException e) {
+//            throw new IllegalStateException("There's an error when processing Telegram audio", e);
+//        }
+//        return openAiClient.transcribe(renameToOgg(audio));
+//    }
+//
+//    private java.io.File renameToOgg(java.io.File tmpFile) {
+//        String fileName = tmpFile.getName();
+//        String newFileName = fileName.substring(0, fileName.length() - 4) + ".ogg";
+//        Path sourcePath = tmpFile.toPath();
+//        Path targetPath = sourcePath.resolveSibling(newFileName);
+//        try {
+//            Files.move(sourcePath, targetPath);
+//        } catch (IOException e) {
+//            throw new IllegalStateException("There was an error when renaming .tmp audio file to .ogg", e);
+//        }
+//        return targetPath.toFile();
+//    }
+//
+//    private String askNextQuestion(String userName) {
+//        String prompt = String.format(QUESTION_PROMPT, topicRepository.getRandomTopic());
+//        String question = openAiClient.promptModel(prompt);
+//        interviewRepository.addQuestion(userName, question);
+//        return question;
+//    }
+//
+//    private String provideFeedback(String userName) {
+//        StringBuilder feedbackPrompt = new StringBuilder();
+//        feedbackPrompt.append(FEEDBACK_PROMPT);
+//        Deque<Question> questions = interviewRepository.finishInterview(userName);
+//        questions.forEach(question -> feedbackPrompt.append("Исходный вопрос: ")
+//                .append(question.getQuestion()).append("\n")
+//                .append("Ответ кандидата: ")
+//                .append(question.getAnswer()).append("\n"));
+//        return openAiClient.promptModel(feedbackPrompt.toString());
+//    }

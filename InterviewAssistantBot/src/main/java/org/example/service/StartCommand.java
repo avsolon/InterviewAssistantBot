@@ -9,17 +9,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.Locale;
+
 @Component
 public class StartCommand extends Command {
-
-//    @Autowired
-//    private TopicRepository topicRepository;
-//
-//    @Autowired
-//    private OpenAiClient openAiClient;
-//
-//    @Autowired
-//    private InterviewRepository interviewRepository;
 
     private static final String INTERVIEW_PROMPT = """
                         Весело и тепло поприветствуй кандидата на собеседовании, а также расскажи ему о правилах интервью:
@@ -59,6 +52,7 @@ public class StartCommand extends Command {
                         огромного количества текста на экране.
                         """;
 
+
     public StartCommand(TopicRepository topicRepository,
                         OpenAiClient openAiClient,
                         InterviewRepository interviewRepository) {
@@ -73,9 +67,30 @@ public class StartCommand extends Command {
 
     @Override
     public String process(Update update, Bot bot) {
+        String userName = update.getMessage().getFrom().getUserName();
+
+        // 1. Очищаем предыдущую сессию
+        interviewRepository.finishInterview(userName);
+
+        // 2. Инициализируем новую сессию
+        interviewRepository.startInterview(userName);
+
+        // 3. Генерируем приветствие через GPT
         String topic = topicRepository.getRandomTopic();
-        String prompt = String.format(INTERVIEW_PROMPT, topic);
-        return openAiClient.promptModel(prompt);
+        String welcomeMessage = openAiClient.promptModel(INTERVIEW_PROMPT);
+
+        // 4. Сохраняем приветствие как первый вопрос
+        interviewRepository.addQuestion(userName, welcomeMessage);
+
+        return welcomeMessage;
     }
 }
+
+
+//    @Override
+//    public String process(Update update, Bot bot) {
+//        String topic = topicRepository.getRandomTopic();
+//        String prompt = String.format(INTERVIEW_PROMPT, topic);
+//        return openAiClient.promptModel(prompt);
+//    }
 
